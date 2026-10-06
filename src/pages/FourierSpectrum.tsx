@@ -33,7 +33,6 @@ export default function FourierSpectrum() {
   const [d0, setD0] = useState(30);
   const [order, setOrder] = useState(2);
 
-  // Bagian berat: hanya dihitung ulang saat gambar berganti
   const base = useMemo(() => {
     if (!image) return null;
     const { pixels } = image;
@@ -52,7 +51,6 @@ export default function FourierSpectrum() {
     };
   }, [image]);
 
-  // Bagian ringan: dihitung ulang saat filter diubah
   const filtered = useMemo(() => {
     if (!base) return null;
     const t0 = performance.now();
@@ -61,7 +59,6 @@ export default function FourierSpectrum() {
     const rec = inverseSpectrum(spec);
     const ms = performance.now() - t0;
     const display = type === "high" ? 128 : 0;
-    // MSE dibandingkan setelah dipotong ke 0..255 (seperti yang tampil)
     const clipped = Float64Array.from(rec, (v) => Math.min(255, Math.max(0, v)));
     return {
       ms,

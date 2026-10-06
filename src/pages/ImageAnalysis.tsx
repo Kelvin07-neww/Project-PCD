@@ -17,7 +17,6 @@ export default function ImageAnalysis() {
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [busy, setBusy] = useState(false);
 
-  // Analisis otomatis tiap gambar baru
   useEffect(() => {
     setAnalysis(image ? analyzeImage(image.pixels) : null);
   }, [image]);
@@ -25,7 +24,6 @@ export default function ImageAnalysis() {
   const runDiagnostics = useCallback(() => {
     if (!image) return;
     setBusy(true);
-    // beri browser satu frame untuk menampilkan status "Computing…"
     window.setTimeout(() => {
       setAnalysis(analyzeImage(image.pixels));
       setBusy(false);
