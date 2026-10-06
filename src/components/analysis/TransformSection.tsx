@@ -70,9 +70,9 @@ export function TransformSection({ pixels, analysis }: { pixels: Pixels; analysi
   return (
     <div className="flex flex-col gap-space-lg">
       <div className="flex flex-col gap-space-xs">
-        <h2 className="font-headline-lg text-headline-lg text-on-surface">Point &amp; Spatial Mathematical Transformations</h2>
+        <h2 className="font-headline-lg text-headline-lg text-on-surface">Transformasi Matematis Titik &amp; Spasial</h2>
         <p className="font-body-md text-body-md text-on-surface-variant">
-          Deterministic mathematical mappings applied at each spatial coordinate (x, y).
+          Pemetaan matematis deterministik yang diterapkan pada setiap koordinat spasial (x, y).
         </p>
       </div>
 
@@ -85,21 +85,21 @@ export function TransformSection({ pixels, analysis }: { pixels: Pixels; analysi
           formulaClassName="text-secondary"
         >
           <p className="font-body-sm text-body-sm text-on-surface-variant">
-            Luminosity psychophysical weighting accounting for human photoreceptor spectral sensitivity in the green spectrum.
+            Pembobotan psikofisika luminositas yang memperhitungkan sensitivitas spektral fotoreseptor manusia pada spektrum hijau.
           </p>
-          <Split left={pixels} leftLabel="Input" right={gray} rightLabel="Y-channel" rightClassName="text-tertiary" alt="Grayscale" />
+          <Split left={pixels} leftLabel="Input" right={gray} rightLabel="Kanal Y" rightClassName="text-tertiary" alt="Grayscale" />
         </Panel>
 
         <Panel
-          title="RGB → Binary Threshold"
-          status="Interactive"
+          title="RGB → Biner Threshold"
+          status="Interaktif"
           statusClassName="bg-primary-container text-on-primary-container"
           formula="g(x,y) = 255 if Y(x,y) ≥ T else 0"
           formulaClassName="text-primary"
         >
           <div className="flex flex-col gap-1 pt-1">
             <div className="flex justify-between font-metric-mono-sm text-metric-mono-sm text-on-surface-variant">
-              <span>Threshold Parameter:</span>
+              <span>Parameter Threshold:</span>
               <span className="font-bold text-primary">
                 T = {t}
                 {t === analysis.otsu ? " (Otsu optimal)" : ""}
@@ -110,35 +110,35 @@ export function TransformSection({ pixels, analysis }: { pixels: Pixels; analysi
               min={0}
               max={255}
               value={t}
-              aria-label="Binary threshold T"
+              aria-label="Threshold biner T"
               onChange={(event) => setT(Number(event.target.value))}
               className="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-surface-container-lowest accent-primary"
             />
             <div className="flex items-center justify-between pt-1">
-              <span className="font-body-sm text-body-sm text-on-surface-variant">Otsu Auto-Calculate</span>
+              <span className="font-body-sm text-body-sm text-on-surface-variant">Hitung Otomatis Otsu</span>
               <button
                 type="button"
                 onClick={() => setT(analysis.otsu)}
                 className="rounded bg-surface-container-high px-2 py-0.5 font-metric-mono-sm text-metric-mono-sm text-secondary outline-none hover:bg-surface-container-highest focus-visible:ring-2 focus-visible:ring-primary/70"
               >
-                Run Otsu (Optimal T: {analysis.otsu})
+                Jalankan Otsu (T Optimal: {analysis.otsu})
               </button>
             </div>
           </div>
-          <Split left={gray} leftLabel="Y(x,y)" right={binary} rightLabel="Binary" rightClassName="text-primary" alt="Threshold" />
+          <Split left={gray} leftLabel="Y(x,y)" right={binary} rightLabel="Biner" rightClassName="text-primary" alt="Threshold" />
         </Panel>
 
         <Panel
-          title="RGB → Negative"
+          title="RGB → Negatif"
           status="Live"
           statusClassName="bg-surface-container-highest text-tertiary"
           formula="f'(x,y) = 255 - f(x,y)"
           formulaClassName="text-tertiary"
         >
           <p className="font-body-sm text-body-sm text-on-surface-variant">
-            Exact photographic negative inversion. Illuminates subtle deep-shadow textures and darkroom noise characteristics.
+            Inversi negatif fotografi yang presisi. Menonjolkan tekstur bayangan gelap yang halus dan karakteristik noise darkroom.
           </p>
-          <Split left={pixels} leftLabel="Natural" right={negative} rightLabel="Inverted" rightClassName="text-tertiary" alt="Negative" />
+          <Split left={pixels} leftLabel="Natural" right={negative} rightLabel="Terbalik" rightClassName="text-tertiary" alt="Negatif" />
         </Panel>
       </div>
     </div>

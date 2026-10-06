@@ -14,7 +14,7 @@ function RouteFallback() {
       className="flex min-h-[60vh] w-full items-center justify-center gap-space-sm font-metric-mono-sm text-metric-mono-sm text-on-surface-variant"
     >
       <Icon name="progress_activity" className="animate-spin text-[20px] text-primary" />
-      <span>Loading module…</span>
+      <span>Memuat modul…</span>
     </div>
   );
 }
@@ -28,7 +28,7 @@ export function AppLayout() {
 
     const current = NAV_ITEMS.find((item) => item.path === pathname);
     if (!current) {
-      document.title = `Not found | ${APP_NAME}`;
+      document.title = `Tidak ditemukan | ${APP_NAME}`;
     } else if (current.path === ROUTES.home) {
       document.title = APP_FULL_TITLE;
     } else {
@@ -42,7 +42,7 @@ export function AppLayout() {
         href="#main-content"
         className="sr-only z-[60] rounded bg-primary-container px-space-md py-space-sm font-label-lg text-label-lg text-on-primary-container focus:not-sr-only focus:fixed focus:left-space-md focus:top-space-md"
       >
-        Skip to content
+        Lewati ke konten
       </a>
 
       <Navbar />

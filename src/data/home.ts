@@ -3,8 +3,8 @@ import { ROUTES } from "@/data/navItems";
 /* ---------- Hero ---------- */
 
 export const HERO_EYEBROW = {
-  badge: "Hardware-Accelerated WebGL 2.0 DIP Suite",
-  caption: "Live Biometrics & FFT Matrix",
+  badge: "Suite DIP WebGL 2.0 Berakselerasi Hardware",
+  caption: "Biometrik Live & Matriks FFT",
 } as const;
 
 export interface CapabilityStat {
@@ -15,15 +15,15 @@ export interface CapabilityStat {
 }
 
 export const CAPABILITY_STATS: readonly CapabilityStat[] = [
-  { icon: "view_in_ar", iconClassName: "text-primary", value: "40+", label: "Real-Time Kernels" },
-  { icon: "speed", iconClassName: "text-secondary", value: "< 1 ms", label: "Sub-ms 2D FFT" },
+  { icon: "view_in_ar", iconClassName: "text-primary", value: "40+", label: "Kernel Real-Time" },
+  { icon: "speed", iconClassName: "text-secondary", value: "< 1 ms", label: "FFT 2D Sub-ms" },
   {
     icon: "photo_size_select_actual",
     iconClassName: "text-tertiary",
-    value: "Lossless 4K",
-    label: "High-Fidelity Capture",
+    value: "4K Lossless",
+    label: "Tangkap Gambar Fidelitas Tinggi",
   },
-  { icon: "lock", iconClassName: "text-emerald-400", value: "100% Client", label: "Zero-Server Privacy" },
+  { icon: "lock", iconClassName: "text-emerald-400", value: "100% Client", label: "Privasi Tanpa Server" },
 ];
 
 /* ---------- Kurva dekoratif (SVG) ---------- */
@@ -117,10 +117,10 @@ export interface FilterChipData {
 }
 
 export const CREATIVE_FILTER_CHIPS: readonly FilterChipData[] = [
-  { label: "Cinematic Teal & Orange", dotClassName: "bg-amber-400" },
-  { label: "Vintage Emulsion 35mm", dotClassName: "bg-rose-400" },
-  { label: "8-Level Posterize", dotClassName: "bg-primary" },
-  { label: "Sepia Duotone", dotClassName: "bg-yellow-600" },
+  { label: "Teal & Oranye Sinematik", dotClassName: "bg-amber-400" },
+  { label: "Emulsi Vintage 35mm", dotClassName: "bg-rose-400" },
+  { label: "Posterize 8-Level", dotClassName: "bg-primary" },
+  { label: "Duotone Sepia", dotClassName: "bg-yellow-600" },
 ];
 
 export const CREATIVE_SWATCHES: readonly string[] = [
@@ -154,43 +154,43 @@ export const PILLARS: readonly PillarMeta[] = [
     id: "creative",
     tone: "primary",
     icon: "auto_fix_high",
-    category: "CREATIVE LAB",
-    title: "Creative & Artistic Filters",
+    category: "LAB KREATIF",
+    title: "Filter Kreatif & Artistik",
     description:
-      "Apply beautiful effects, warm cinematic grading, vintage emulsions, and instant transformations engineered with non-destructive lookup tables.",
+      "Terapkan efek indah, grading sinematik hangat, emulsi vintage, dan transformasi instan dengan lookup table non-destruktif.",
     linkTo: ROUTES.photoBooth,
-    linkLabel: "Launch Booth",
+    linkLabel: "Buka Booth",
   },
   {
     id: "analysis",
     tone: "tertiary",
     icon: "insights",
-    category: "ANALYTIC DIP",
-    title: "Digital Image Processing Analysis",
+    category: "DIP ANALITIK",
+    title: "Analisis Pengolahan Citra Digital",
     description:
-      "Analyze spatial resolution, dynamic histograms, independent RGB color channels, and adaptive Otsu thresholding in millisecond precision.",
-    footerNote: "CDF Equalization • Quantization",
+      "Analisis resolusi spasial, histogram dinamis, kanal warna RGB independen, dan threshold Otsu adaptif dengan presisi milidetik.",
+    footerNote: "Ekualisasi CDF • Kuantisasi",
     linkTo: ROUTES.imageAnalysis,
-    linkLabel: "Inspect Metrics",
+    linkLabel: "Inspeksi Metrik",
   },
   {
     id: "fourier",
     tone: "secondary",
     icon: "graphic_eq",
-    category: "SPECTRAL MATRIX",
-    title: "2D Fourier Frequency Domain",
+    category: "MATRIKS SPEKTRAL",
+    title: "Domain Frekuensi Fourier 2D",
     description:
-      "Deconstruct photos into spatial frequencies, isolate low vs high pass components with ideal and Butterworth filters, and reconstruct via Inverse FFT.",
-    footerNote: "IFFT Reconstruct • Phase/Mag",
+      "Uraikan foto menjadi frekuensi spasial, isolasi komponen low-pass vs high-pass dengan filter ideal dan Butterworth, lalu rekonstruksi melalui FFT invers.",
+    footerNote: "Rekonstruksi IFFT • Fase/Mag",
     linkTo: ROUTES.fourierSpectrum,
-    linkLabel: "View Spectrum",
+    linkLabel: "Lihat Spektrum",
   },
 ];
 
 /* ---------- Pipeline footer links ---------- */
 
 export const PIPELINE_TECHNIQUES = [
-  { label: "Fast Fourier Transform (Cooley-Tukey)", to: ROUTES.fourierSpectrum, hover: "hover:text-primary" },
-  { label: "Otsu Binarization", to: ROUTES.imageAnalysis, hover: "hover:text-tertiary" },
+  { label: "Transformasi Fourier Cepat (Cooley-Tukey)", to: ROUTES.fourierSpectrum, hover: "hover:text-primary" },
+  { label: "Binarisasi Otsu", to: ROUTES.imageAnalysis, hover: "hover:text-tertiary" },
   { label: "Laplacian of Gaussian (LoG)", to: ROUTES.imageAnalysis, hover: "hover:text-secondary" },
 ] as const;

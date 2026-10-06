@@ -38,7 +38,7 @@ function BiometricReticle() {
 
         <div className="absolute -bottom-7 left-0 flex items-center gap-1.5 rounded bg-surface-container-lowest/90 px-2 py-0.5 font-metric-mono-sm text-[10px] text-primary-fixed shadow-md">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-          <span>SUBJECT_01 • CONFIDENCE 99.4%</span>
+          <span>SUBJEK_01 • KEYAKINAN 99.4%</span>
         </div>
       </div>
     </div>
@@ -50,9 +50,9 @@ function LiveWaveformBadge() {
     <div className="absolute bottom-4 left-4 hidden max-w-xs rounded-xl bg-surface-container-lowest/90 p-3 shadow-xl backdrop-blur-md sm:block">
       <div className="mb-2 flex items-center justify-between">
         <span className="flex items-center gap-1 font-metric-mono-sm text-metric-mono-sm text-on-surface">
-          <Icon name="query_stats" className="text-[14px] text-tertiary" /> LIVE RGB WAVEFORM
+          <Icon name="query_stats" className="text-[14px] text-tertiary" /> WAVEFORM RGB LIVE
         </span>
-        <span className="font-metric-mono-sm text-[10px] text-outline">256 BINS</span>
+        <span className="font-metric-mono-sm text-[10px] text-outline">256 BIN</span>
       </div>
       <svg aria-hidden="true" className="h-12 w-48" fill="none" preserveAspectRatio="none" viewBox="0 0 180 40">
         {HERO_HISTOGRAM_PATHS.map((path) => (
@@ -82,7 +82,7 @@ export function ViewportMockup() {
         </div>
         <div className="hidden items-center gap-4 sm:flex">
           <span className="flex items-center gap-1 font-semibold text-tertiary">
-            <span className="h-1.5 w-1.5 rounded-full bg-tertiary" /> RAW BUFFER 32-BIT FLOAT
+            <span className="h-1.5 w-1.5 rounded-full bg-tertiary" /> BUFFER RAW FLOAT 32-BIT
           </span>
           <span className="text-outline">ISO 100 • ƒ/1.8 • 1/125s</span>
         </div>
@@ -96,7 +96,7 @@ export function ViewportMockup() {
       {/* Viewport */}
       <div className="relative aspect-[16/9] w-full overflow-hidden rounded-b-xl bg-surface-container-lowest sm:aspect-[1.79]">
         <img
-          alt="Cinematic close-up portrait of a thoughtful person in soft studio split lighting"
+          alt="Potret close-up sinematik seseorang dalam pencahayaan studio split yang lembut"
           src={TEST_PORTRAIT_URL}
           className="h-full w-full object-cover object-center contrast-[1.05]"
         />
@@ -122,8 +122,8 @@ export function ViewportMockup() {
 
         <div className="absolute bottom-4 right-4 flex items-center gap-2 rounded-lg bg-surface-container-lowest/90 px-3 py-1.5 font-metric-mono-sm text-metric-mono-sm shadow-md backdrop-blur-md">
           <Icon name="shutter_speed" className="text-[16px] text-secondary" />
-          <span className="text-on-surface-variant">COLOR_SPACE:</span>
-          <span className="font-semibold text-secondary">Linear Float (sRGB_D65)</span>
+          <span className="text-on-surface-variant">RUANG_WARNA:</span>
+          <span className="font-semibold text-secondary">Float Linear (sRGB_D65)</span>
         </div>
       </div>
     </div>

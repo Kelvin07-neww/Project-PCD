@@ -43,14 +43,14 @@ export function HeroSection() {
         {/* Headline */}
         <div className="mx-auto mb-space-xl max-w-4xl text-center">
           <h1 className="mb-space-md font-headline-xl text-headline-xl tracking-tight text-on-surface sm:text-[48px] sm:leading-[56px]">
-            Turn Every Moment Into a{" "}
+            Ubah Setiap Momen Menjadi{" "}
             <span className="bg-gradient-to-r from-primary via-tertiary to-secondary bg-clip-text text-transparent">
-              Creative Shot.
+              Foto Kreatif.
             </span>
           </h1>
           <p className="mx-auto max-w-2xl font-body-lg text-body-lg font-normal text-on-surface-variant">
-            Capture your photo, explore creative filters, and discover what’s happening inside your
-            image — blending studio aesthetics with academic computer vision.
+            Ambil foto Anda, eksplorasi filter kreatif, dan temukan apa yang terjadi di dalam
+            gambar — memadukan estetika studio dengan computer vision akademik.
           </p>
 
           <div className="mt-space-lg flex flex-wrap items-center justify-center gap-space-md">
@@ -63,7 +63,7 @@ export function HeroSection() {
               trailingIcon="arrow_forward"
               className="font-semibold tracking-wide"
             >
-              Open Photo Booth
+              Buka Photo Booth
             </ButtonLink>
             <ButtonLink
               to={ROUTES.imageAnalysis}
@@ -72,7 +72,7 @@ export function HeroSection() {
               iconClassName="text-secondary"
               className="font-medium"
             >
-              Explore Image Processing
+              Jelajahi Pengolahan Citra
             </ButtonLink>
           </div>
         </div>

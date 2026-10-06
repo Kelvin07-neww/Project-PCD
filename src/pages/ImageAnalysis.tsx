@@ -38,7 +38,7 @@ export default function ImageAnalysis() {
   return (
     <div className="mx-auto flex w-full max-w-[1720px] flex-col gap-space-xl px-margin-mobile py-space-xl sm:px-margin">
       <LabHeader
-        sourceLabel={image?.label ?? "loading…"}
+        sourceLabel={image?.label ?? "memuat…"}
         busy={busy}
         disabled={!image || !analysis}
         onPickFile={loadFile}
@@ -57,7 +57,7 @@ export default function ImageAnalysis() {
       {!image || !analysis ? (
         <div role="status" aria-live="polite" className="flex min-h-[40vh] items-center justify-center gap-space-sm font-metric-mono-sm text-metric-mono-sm text-on-surface-variant">
           <Icon name="progress_activity" className="animate-spin text-[20px] text-primary motion-reduce:animate-none" />
-          <span>{loading ? "Loading image…" : "No image loaded"}</span>
+          <span>{loading ? "Memuat gambar…" : "Belum ada gambar yang dimuat"}</span>
         </div>
       ) : (
         <>

@@ -16,7 +16,7 @@ function loadImage(src: string, crossOrigin: boolean): Promise<HTMLImageElement>
     const img = new Image();
     if (crossOrigin) img.crossOrigin = "anonymous";
     img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("Image failed to load"));
+    img.onerror = () => reject(new Error("Gambar gagal dimuat"));
     img.src = src;
   });
 }
@@ -24,7 +24,7 @@ function loadImage(src: string, crossOrigin: boolean): Promise<HTMLImageElement>
 function rasterize(img: HTMLImageElement, label: string): LoadedImage {
   const sw = img.naturalWidth;
   const sh = img.naturalHeight;
-  if (sw === 0 || sh === 0) throw new Error("Image has no dimensions");
+  if (sw === 0 || sh === 0) throw new Error("Gambar tidak memiliki dimensi");
 
   const scale = Math.min(1, MAX_ANALYSIS_SIDE / Math.max(sw, sh));
   const w = Math.max(1, Math.round(sw * scale));
@@ -34,7 +34,7 @@ function rasterize(img: HTMLImageElement, label: string): LoadedImage {
   canvas.width = w;
   canvas.height = h;
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  if (!ctx) throw new Error("Canvas 2D is not available");
+  if (!ctx) throw new Error("Canvas 2D tidak tersedia");
   ctx.drawImage(img, 0, 0, w, h);
 
   // getImageData melempar SecurityError jika canvas "tainted" (CORS).
@@ -59,7 +59,7 @@ export async function loadFromFile(file: File): Promise<LoadedImage> {
 
 export async function loadTestImage(): Promise<{ image: LoadedImage; fellBack: boolean }> {
   try {
-    return { image: await loadFromUrl(TEST_PORTRAIT_URL, "Test portrait"), fellBack: false };
+    return { image: await loadFromUrl(TEST_PORTRAIT_URL, "Potret uji"), fellBack: false };
   } catch {
     const pixels = makeTestPixels();
     return {
@@ -67,7 +67,7 @@ export async function loadTestImage(): Promise<{ image: LoadedImage; fellBack: b
         pixels,
         sourceWidth: pixels.width,
         sourceHeight: pixels.height,
-        label: "Synthetic test scene",
+        label: "Adegan uji sintetis",
       },
       fellBack: true,
     };

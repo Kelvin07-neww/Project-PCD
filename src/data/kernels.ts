@@ -3,7 +3,7 @@ export type KernelMatrix = number[][];
 export interface KernelPreset {
   id: string;
   label: string;
-  /** Nama pendek untuk judul panel, mis. "Sobel Horizontal Gradient (G_x)". */
+  /** Nama pendek untuk judul panel, mis. "Gradien Horizontal Sobel (G_x)". */
   title: string;
   matrix: KernelMatrix;
   /** Pembagi normalisasi hasil konvolusi. */
@@ -27,54 +27,54 @@ export const KERNEL_PRESETS: readonly KernelPreset[] = [
   {
     id: "sobel-gx",
     label: "Sobel Gx",
-    title: "Sobel Horizontal Gradient (G_x)",
+    title: "Gradien Horizontal Sobel (G_x)",
     matrix: SOBEL_GX,
     divisor: 1,
-    description: "First difference across columns: detects vertical edges.",
+    description: "Selisih pertama antar kolom: mendeteksi tepi vertikal.",
   },
   {
     id: "sobel-gy",
     label: "Sobel Gy",
-    title: "Sobel Vertical Gradient (G_y)",
+    title: "Gradien Vertikal Sobel (G_y)",
     matrix: SOBEL_GY,
     divisor: 1,
-    description: "First difference across rows: detects horizontal edges.",
+    description: "Selisih pertama antar baris: mendeteksi tepi horizontal.",
   },
   {
     id: "laplacian",
     label: "Laplacian 3×3",
-    title: "Laplacian (4-neighbour)",
+    title: "Laplacian (4-tetangga)",
     matrix: [
       [0, 1, 0],
       [1, -4, 1],
       [0, 1, 0],
     ],
     divisor: 1,
-    description: "Second derivative: highlights regions of rapid intensity change.",
+    description: "Turunan kedua: menonjolkan area dengan perubahan intensitas cepat.",
   },
   {
     id: "gaussian",
-    label: "Gaussian Blur 3×3",
-    title: "Gaussian Blur 3×3",
+    label: "Blur Gaussian 3×3",
+    title: "Blur Gaussian 3×3",
     matrix: [
       [1, 2, 1],
       [2, 4, 2],
       [1, 2, 1],
     ],
     divisor: 16,
-    description: "Weighted average: low-pass smoothing and de-noising.",
+    description: "Rata-rata berbobot: penghalusan low-pass dan pengurangan noise.",
   },
   {
     id: "sharpen",
-    label: "Sharpen (High Boost)",
-    title: "Sharpen (High Boost)",
+    label: "Penajaman (High Boost)",
+    title: "Penajaman (High Boost)",
     matrix: [
       [0, -1, 0],
       [-1, 5, -1],
       [0, -1, 0],
     ],
     divisor: 1,
-    description: "Identity plus Laplacian: boosts high-frequency detail.",
+    description: "Identitas ditambah Laplacian: memperkuat detail frekuensi tinggi.",
   },
 ];
 

@@ -7,7 +7,7 @@ export function CannyModule() {
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-1.5 font-label-md text-label-md text-on-surface">
           <Icon name="grain" className="text-[15px] text-tertiary" />
-          <span className="font-semibold">Canny Edge Detector</span>
+          <span className="font-semibold">Detektor Tepi Canny</span>
         </div>
         <span className="rounded bg-surface-container px-1.5 py-0.5 font-metric-mono-sm text-[10px] text-tertiary-fixed">
           σ = 1.4
@@ -29,13 +29,13 @@ export function CannyModule() {
           <circle cx="100" cy="33" r="1.5" fill="#7bd0ff" />
         </svg>
         <div className="absolute bottom-1 right-2 font-metric-mono-sm text-[9px] text-outline">
-          Dual-threshold [50, 150]
+          Threshold ganda [50, 150]
         </div>
       </div>
 
       <div className="mt-2 flex items-center justify-between border-t border-outline-variant/30 pt-2 font-metric-mono-sm text-[11px] text-on-surface-variant">
-        <span>Non-max suppression</span>
-        <span className="text-emerald-400">ACTIVE</span>
+        <span>Supresi non-maks</span>
+        <span className="text-emerald-400">AKTIF</span>
       </div>
     </div>
   );
@@ -47,7 +47,7 @@ export function FftModule() {
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-1.5 font-label-md text-label-md text-on-surface">
           <Icon name="radar" className="text-[15px] text-secondary" />
-          <span className="font-semibold">2D FFT Magnitude</span>
+          <span className="font-semibold">Magnitudo FFT 2D</span>
         </div>
         <span className="font-metric-mono-sm text-[10px] text-secondary">k-SPACE</span>
       </div>
@@ -72,13 +72,13 @@ export function FftModule() {
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,rgba(208,188,255,0.1),transparent_70%)]"
         />
         <span className="absolute bottom-1 left-2 font-metric-mono-sm text-[9px] text-tertiary">
-          DC Peak Shift: (0,0)
+          Pergeseran Puncak DC: (0,0)
         </span>
       </div>
 
       <div className="mt-2 text-center">
         <span className="font-metric-mono-sm text-[10px] text-on-surface-variant">
-          Log Magnitude Spectrum (Centered)
+          Spektrum Magnitudo Log (Terpusat)
         </span>
       </div>
     </div>

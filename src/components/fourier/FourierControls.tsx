@@ -93,21 +93,21 @@ export function FourierControls({ type, shape, d0, order, maxD0, onType, onShape
     <div className="flex flex-col gap-space-md rounded-xl bg-surface-container-low p-space-md shadow-sm">
       <div className="flex items-center gap-1.5">
         <Icon name="tune" className="text-[18px] text-tertiary" />
-        <span className="font-headline-md text-headline-md text-on-surface">Frequency Filter</span>
+        <span className="font-headline-md text-headline-md text-on-surface">Filter Frekuensi</span>
       </div>
       <div className="grid grid-cols-1 gap-space-md md:grid-cols-2 xl:grid-cols-4">
         <Segmented
-          label="Filter type"
+          label="Jenis filter"
           value={type}
           onChange={onType}
           options={[
-            { id: "none", label: "None" },
+            { id: "none", label: "Tidak ada" },
             { id: "low", label: "Low-pass" },
             { id: "high", label: "High-pass" },
           ]}
         />
         <Segmented
-          label="Transfer function"
+          label="Fungsi transfer"
           value={shape}
           onChange={onShape}
           disabled={off}
@@ -119,7 +119,7 @@ export function FourierControls({ type, shape, d0, order, maxD0, onType, onShape
         />
         <Slider label="Cutoff D₀" valueLabel={`${d0} px`} min={1} max={maxD0} value={d0} onChange={onD0} disabled={off} />
         <Slider
-          label="Butterworth order n"
+          label="Orde Butterworth n"
           valueLabel={`n = ${order}`}
           min={1}
           max={8}

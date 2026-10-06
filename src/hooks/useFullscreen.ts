@@ -19,7 +19,7 @@ export function useFullscreen() {
         await document.documentElement.requestFullscreen();
       }
     } catch (error) {
-      console.warn("Fullscreen request failed:", error);
+      console.warn("Permintaan layar penuh gagal:", error);
     }
   }, []);
 

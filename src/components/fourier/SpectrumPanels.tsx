@@ -42,12 +42,12 @@ export function SpectrumPanels({ n, original, spectrum, mask, result, cutoff, hi
   const img = "h-full w-full object-contain";
   return (
     <div className="grid grid-cols-1 gap-space-md sm:grid-cols-2 xl:grid-cols-4">
-      <Frame title="1. Original f(x,y)" badge="Spatial" titleClassName="text-on-surface">
-        <PixelCanvas pixels={original} label="Grayscale spatial image" className={img} />
+      <Frame title="1. Asli f(x,y)" badge="Spasial" titleClassName="text-on-surface">
+        <PixelCanvas pixels={original} label="Gambar spasial grayscale" className={img} />
       </Frame>
 
-      <Frame title="2. Spectrum |F(u,v)|" badge="log(1 + |F|)" titleClassName="text-secondary">
-        <PixelCanvas pixels={spectrum} label="Log magnitude spectrum" className={img} />
+      <Frame title="2. Spektrum |F(u,v)|" badge="log(1 + |F|)" titleClassName="text-secondary">
+        <PixelCanvas pixels={spectrum} label="Spektrum magnitudo log" className={img} />
         {cutoff !== null && (
           <svg aria-hidden="true" viewBox={`0 0 ${n} ${n}`} className="pointer-events-none absolute inset-0 h-full w-full">
             <circle cx={n / 2} cy={n / 2} r={cutoff} fill="none" stroke="#7bd0ff" strokeWidth={1.5} strokeDasharray="4 3" vectorEffect="non-scaling-stroke" />
@@ -59,11 +59,11 @@ export function SpectrumPanels({ n, original, spectrum, mask, result, cutoff, hi
       </Frame>
 
       <Frame title="3. Filter H(u,v)" badge="0 … 1" titleClassName="text-primary">
-        <PixelCanvas pixels={mask} label="Filter transfer function" className={img} />
+        <PixelCanvas pixels={mask} label="Fungsi transfer filter" className={img} />
       </Frame>
 
-      <Frame title="4. Inverse FFT Reconstruction" badge={highPass ? "+128 offset" : "IFFT"} titleClassName="text-tertiary">
-        <PixelCanvas pixels={result} label="Reconstructed image after inverse FFT" className={img} />
+      <Frame title="4. Rekonstruksi FFT Invers" badge={highPass ? "+128 offset" : "IFFT"} titleClassName="text-tertiary">
+        <PixelCanvas pixels={result} label="Gambar rekonstruksi setelah FFT invers" className={img} />
       </Frame>
     </div>
   );

@@ -17,18 +17,18 @@ const CHANNELS: readonly {
   stroke: string;
   toggle: string;
 }[] = [
-  { key: "r", name: "Red Channel (R)", dot: "bg-error", badge: "bg-error-container text-on-error-container", stroke: "#ffb4ab", toggle: "text-error" },
-  { key: "g", name: "Green Channel (G)", dot: "bg-tertiary", badge: "bg-tertiary-container text-on-tertiary-container", stroke: "#7bd0ff", toggle: "text-tertiary" },
-  { key: "b", name: "Blue Channel (B)", dot: "bg-primary", badge: "bg-primary-container text-on-primary-container", stroke: "#adc6ff", toggle: "text-primary" },
+  { key: "r", name: "Kanal Merah (R)", dot: "bg-error", badge: "bg-error-container text-on-error-container", stroke: "#ffb4ab", toggle: "text-error" },
+  { key: "g", name: "Kanal Hijau (G)", dot: "bg-tertiary", badge: "bg-tertiary-container text-on-tertiary-container", stroke: "#7bd0ff", toggle: "text-tertiary" },
+  { key: "b", name: "Kanal Biru (B)", dot: "bg-primary", badge: "bg-primary-container text-on-primary-container", stroke: "#adc6ff", toggle: "text-primary" },
 ];
 
 const signed = (v: number) => `${v >= 0 ? "+" : "−"}${Math.abs(v).toFixed(2)}`;
 
 function StatCell({ label, stats }: { label: string; stats: ChannelStats }) {
   const values = [
-    { k: "Mean", v: stats.mean.toFixed(1), cls: "" },
-    { k: "StdDev", v: stats.std.toFixed(1), cls: "" },
-    { k: "Skew", v: signed(stats.skew), cls: "text-right" },
+    { k: "Rerata", v: stats.mean.toFixed(1), cls: "" },
+    { k: "SimpBaku", v: stats.std.toFixed(1), cls: "" },
+    { k: "Kemencengan", v: signed(stats.skew), cls: "text-right" },
   ];
   return (
     <div aria-label={`${label} statistics`} className="grid grid-cols-3 gap-space-xs pt-1 font-metric-mono-sm text-metric-mono-sm text-on-surface-variant">
@@ -71,7 +71,7 @@ export function ChannelSection({ analysis }: { analysis: Analysis }) {
   const hi = Math.max(stats.r.max, stats.g.max, stats.b.max);
 
   const TOGGLES: { id: View; label: string; cls: string }[] = [
-    { id: "all", label: "All (RGB+Y)", cls: "text-on-surface" },
+    { id: "all", label: "Semua (RGB+Y)", cls: "text-on-surface" },
     { id: "r", label: "R", cls: "text-error" },
     { id: "g", label: "G", cls: "text-tertiary" },
     { id: "b", label: "B", cls: "text-primary" },
@@ -81,9 +81,9 @@ export function ChannelSection({ analysis }: { analysis: Analysis }) {
   return (
     <div className="flex flex-col gap-space-lg">
       <div className="flex flex-col gap-space-xs">
-        <h2 className="font-headline-lg text-headline-lg text-on-surface">RGB Color Space Decomposition &amp; Density Histograms</h2>
+        <h2 className="font-headline-lg text-headline-lg text-on-surface">Dekomposisi Ruang Warna RGB &amp; Histogram Densitas</h2>
         <p className="font-body-md text-body-md text-on-surface-variant">
-          Probability distribution analysis across discrete 8-bit quantization bins [r, g, b ∈ 0..255].
+          Analisis distribusi probabilitas pada bin kuantisasi diskret 8-bit [r, g, b ∈ 0..255].
         </p>
       </div>
 
@@ -96,7 +96,7 @@ export function ChannelSection({ analysis }: { analysis: Analysis }) {
                 <span className="font-headline-md text-headline-md text-on-surface">{c.name}</span>
               </div>
               <span className={cx("rounded px-space-xs py-0.5 font-metric-mono-sm text-metric-mono-sm", c.badge)}>
-                Peak @ {stats[c.key].peak}
+                Puncak @ {stats[c.key].peak}
               </span>
             </div>
             <div className="flex h-20 w-full items-end overflow-hidden rounded bg-surface-container-lowest p-1">
@@ -117,7 +117,7 @@ export function ChannelSection({ analysis }: { analysis: Analysis }) {
         <div className="flex flex-col items-start justify-between gap-space-sm sm:flex-row sm:items-center">
           <div className="flex items-center gap-space-sm">
             <Icon name="equalizer" className="text-[20px] text-primary" />
-            <span className="font-headline-md text-headline-md text-on-surface">Master High-Precision Density Spectrum</span>
+            <span className="font-headline-md text-headline-md text-on-surface">Spektrum Densitas Presisi Tinggi Utama</span>
           </div>
           <div role="group" aria-label="Histogram channel" className="flex items-center gap-space-xs rounded-lg bg-surface-container-lowest px-space-xs py-1">
             {TOGGLES.map((t) => (
@@ -147,21 +147,21 @@ export function ChannelSection({ analysis }: { analysis: Analysis }) {
           <HistogramChart series={masterSeries} className="absolute inset-0 h-full w-full p-space-md" label="Master histogram" />
           <div className="relative z-10 flex justify-between font-metric-mono-sm text-metric-mono-sm text-outline">
             <span>p(k) Max: {pMax.toFixed(4)}</span>
-            <span>Raw bins, 5-tap smoothed curve</span>
+            <span>Bin mentah, kurva halus 5-tap</span>
           </div>
           <div className="relative z-10 flex justify-between border-t border-surface-container-highest pt-2 font-metric-mono-sm text-metric-mono-sm text-outline">
-            <span>0 (Shadow / Pure Black)</span>
+            <span>0 (Bayangan / Hitam Murni)</span>
             <span>64</span>
-            <span>128 (Midtone Gray)</span>
+            <span>128 (Abu-abu Tengah)</span>
             <span>192</span>
-            <span>255 (Saturation White)</span>
+            <span>255 (Putih Jenuh)</span>
           </div>
         </div>
 
         <div className="flex flex-col items-center justify-between gap-space-md pt-space-xs lg:flex-row">
           <div className="flex w-full flex-col gap-space-xs lg:w-1/2">
             <div className="flex justify-between font-metric-mono-sm text-metric-mono-sm">
-              <span className="text-on-surface-variant">Occupied Intensity Range</span>
+              <span className="text-on-surface-variant">Rentang Intensitas Terisi</span>
               <span className="font-medium text-primary">[k_min: {lo}, k_max: {hi}]</span>
             </div>
             <div className="relative h-2 w-full overflow-hidden rounded bg-surface-container-lowest">
@@ -174,9 +174,9 @@ export function ChannelSection({ analysis }: { analysis: Analysis }) {
           <div className="flex w-full items-start gap-space-sm rounded-lg bg-surface-container-low p-space-sm lg:w-1/2">
             <Icon name="info" className="mt-0.5 shrink-0 text-[20px] text-tertiary" />
             <p className="font-body-sm text-body-sm leading-snug text-on-surface-variant">
-              <strong className="font-medium text-on-surface">DIP Principle:</strong> The histogram represents the
-              probability density distribution of pixel intensity values from 0 (pure black) to 255 (saturation white). It
-              provides direct analytical metrics for dynamic range expansion, clipping, and auto-equalization.
+              <strong className="font-medium text-on-surface">Prinsip DIP:</strong> Histogram merepresentasikan
+              distribusi densitas probabilitas nilai intensitas piksel dari 0 (hitam murni) hingga 255 (putih jenuh). Ini
+              memberikan metrik analitis langsung untuk perluasan rentang dinamis, clipping, dan ekualisasi otomatis.
             </p>
           </div>
         </div>

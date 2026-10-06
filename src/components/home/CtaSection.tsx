@@ -18,14 +18,14 @@ export function CtaSection() {
               iconClassName="text-[15px]"
               className="mb-space-md bg-surface-container-highest px-3 py-1 font-metric-mono-sm text-metric-mono-sm text-tertiary-fixed"
             >
-              READY FOR CAPTURE
+              SIAP UNTUK PENGAMBILAN
             </Chip>
             <h2 className="mb-space-sm font-headline-xl text-headline-xl tracking-tight text-on-surface">
-              Step Into the Scientific Studio
+              Masuk ke Studio Ilmiah
             </h2>
             <p className="mb-space-lg font-body-lg text-body-lg text-on-surface-variant">
-              Connect your webcam, apply real-time convolution kernels, inspect the 2D frequency
-              spectrum, and export high-resolution publication-ready visuals.
+              Hubungkan webcam Anda, terapkan kernel konvolusi real-time, inspeksi spektrum frekuensi 2D,
+              dan ekspor visual resolusi tinggi yang siap dipublikasikan.
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-space-md">
@@ -36,10 +36,10 @@ export function CtaSection() {
                 icon="photo_camera"
                 className="px-space-xl font-semibold"
               >
-                Launch PhotoBooth Studio
+                Buka Studio PhotoBooth
               </ButtonLink>
               <ButtonLink to={ROUTES.resultEdit} variant="tonal" size="lg" icon="tune">
-                Open Image Editor
+                Buka Editor Gambar
               </ButtonLink>
             </div>
           </div>

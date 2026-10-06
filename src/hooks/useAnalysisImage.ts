@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { loadFromFile, loadTestImage, type LoadedImage } from "@/lib/dip/image";
 
 const FALLBACK_NOTICE =
-  "The remote test portrait could not be read by the canvas (CORS or offline), so a built-in synthetic scene is used. Upload your own photo for real analysis.";
+  "Potret uji jarak jauh tidak dapat dibaca oleh canvas (CORS atau offline), sehingga digunakan adegan sintetis bawaan. Unggah foto Anda sendiri untuk analisis nyata.";
 
 export function useAnalysisImage() {
   const [image, setImage] = useState<LoadedImage | null>(null);
@@ -31,7 +31,7 @@ export function useAnalysisImage() {
       setImage(next);
     } catch {
       if (id !== ticket.current) return;
-      setNotice("That file could not be read as an image. The previous image is still shown.");
+      setNotice("File tersebut tidak dapat dibaca sebagai gambar. Gambar sebelumnya tetap ditampilkan.");
     }
     setLoading(false);
   }, []);

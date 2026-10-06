@@ -78,11 +78,11 @@ export default function FourierSpectrum() {
   const metrics =
     base && filtered
       ? [
-          { label: "TRANSFORM SIZE", value: `${N} × ${N} (radix-2)`, tone: "text-on-surface" },
-          { label: "FORWARD FFT", value: `${base.forwardMs.toFixed(1)} ms (CPU)`, tone: "text-tertiary" },
+          { label: "UKURAN TRANSFORMASI", value: `${N} × ${N} (radix-2)`, tone: "text-on-surface" },
+          { label: "FFT MAJU", value: `${base.forwardMs.toFixed(1)} ms (CPU)`, tone: "text-tertiary" },
           { label: "FILTER + IFFT", value: `${filtered.ms.toFixed(1)} ms`, tone: "text-secondary" },
-          { label: "ENERGY RETAINED", value: `${filtered.retained.toFixed(2)} %`, tone: "text-on-surface" },
-          { label: "MSE vs ORIGINAL", value: filtered.mse < 1e-6 ? "< 1e-6" : filtered.mse.toFixed(2), tone: "text-on-surface" },
+          { label: "ENERGI TERSISA", value: `${filtered.retained.toFixed(2)} %`, tone: "text-on-surface" },
+          { label: "MSE vs ASLI", value: filtered.mse < 1e-6 ? "< 1e-6" : filtered.mse.toFixed(2), tone: "text-on-surface" },
         ]
       : [];
 
@@ -92,16 +92,16 @@ export default function FourierSpectrum() {
         <div className="flex max-w-4xl flex-col gap-space-xs">
           <div className="flex flex-wrap items-center gap-space-sm font-metric-mono-sm text-metric-mono-sm text-secondary">
             <span className="flex h-2 w-2 animate-pulse rounded-full bg-secondary motion-reduce:animate-none" />
-            <span>SPECTRAL MATRIX / 2D FFT ENGINE</span>
+            <span>MATRIKS SPEKTRAL / MESIN FFT 2D</span>
             <span className="text-outline">::</span>
             <span className="max-w-[260px] truncate text-on-surface-variant" title={image?.label}>
-              SRC: {image?.label ?? "loading…"}
+              SRC: {image?.label ?? "memuat…"}
             </span>
           </div>
-          <h1 className="font-headline-xl text-headline-xl tracking-tight text-on-surface">Fourier Spectrum Lab</h1>
+          <h1 className="font-headline-xl text-headline-xl tracking-tight text-on-surface">Lab Spektrum Fourier</h1>
           <p className="font-body-lg text-body-lg leading-relaxed text-on-surface-variant">
-            Deconstruct the photo into spatial frequencies, isolate low or high bands with ideal, Butterworth and Gaussian
-            filters, then reconstruct it with the inverse FFT.
+            Uraikan foto menjadi frekuensi spasial, isolasi pita rendah atau tinggi dengan filter ideal, Butterworth, dan Gaussian,
+            lalu rekonstruksi kembali dengan FFT invers.
           </p>
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-space-sm">
@@ -112,7 +112,7 @@ export default function FourierSpectrum() {
             className="flex items-center gap-space-xs rounded-lg bg-surface-container px-space-md py-2 font-label-lg text-label-lg text-on-surface shadow-sm outline-none transition-all hover:bg-surface-container-high focus-visible:ring-2 focus-visible:ring-primary/70"
           >
             <Icon name="photo_library" className="text-[18px] text-tertiary" />
-            <span>Select Target Photo</span>
+            <span>Pilih Foto Target</span>
           </button>
           <button
             type="button"
@@ -120,7 +120,7 @@ export default function FourierSpectrum() {
             className="flex items-center gap-space-xs rounded-lg bg-surface-container px-space-md py-2 font-label-lg text-label-lg text-on-surface-variant shadow-sm outline-none transition-all hover:bg-surface-container-high hover:text-on-surface focus-visible:ring-2 focus-visible:ring-primary/70"
           >
             <Icon name="science" className="text-[18px] text-secondary" />
-            <span>Use Test Image</span>
+            <span>Gunakan Gambar Uji</span>
           </button>
         </div>
       </div>
@@ -135,7 +135,7 @@ export default function FourierSpectrum() {
       {!base || !filtered ? (
         <div role="status" aria-live="polite" className="flex min-h-[40vh] items-center justify-center gap-space-sm font-metric-mono-sm text-metric-mono-sm text-on-surface-variant">
           <Icon name="progress_activity" className="animate-spin text-[20px] text-primary motion-reduce:animate-none" />
-          <span>{loading ? "Computing spectrum…" : "No image loaded"}</span>
+          <span>{loading ? "Menghitung spektrum…" : "Belum ada gambar yang dimuat"}</span>
         </div>
       ) : (
         <>
@@ -175,27 +175,27 @@ export default function FourierSpectrum() {
             <div className="flex flex-col gap-space-xs rounded-lg bg-surface-container-low p-space-md">
               <div className="flex items-center gap-space-xs font-headline-md text-headline-md text-primary">
                 <Icon name="radio_button_checked" className="text-[18px]" />
-                <span>Low frequencies (center)</span>
+                <span>Frekuensi rendah (tengah)</span>
               </div>
               <p className="font-body-md text-body-md leading-relaxed text-on-surface-variant">
-                Smooth illumination and large shapes. A low-pass filter keeps them and blurs the photo; a smaller cutoff D₀
-                blurs more. The ideal filter can add ringing around edges, which Butterworth and Gaussian avoid.
+                Pencahayaan halus dan bentuk besar. Filter low-pass mempertahankannya dan membuat foto blur; cutoff D₀ yang lebih kecil
+                membuat blur lebih kuat. Filter ideal dapat menambah ringing di sekitar tepi, yang dihindari oleh Butterworth dan Gaussian.
               </p>
             </div>
             <div className="flex flex-col gap-space-xs rounded-lg bg-surface-container-low p-space-md">
               <div className="flex items-center gap-space-xs font-headline-md text-headline-md text-secondary">
                 <Icon name="grain" className="text-[18px]" />
-                <span>High frequencies (periphery)</span>
+                <span>Frekuensi tinggi (tepi)</span>
               </div>
               <p className="font-body-md text-body-md leading-relaxed text-on-surface-variant">
-                Edges, fine texture and noise. A high-pass filter removes the DC term, so the result has zero mean and is
-                shown with a +128 offset. Larger D₀ leaves only the sharpest edges.
+                Tepi, tekstur halus, dan noise. Filter high-pass menghapus komponen DC, sehingga hasilnya memiliki rata-rata nol dan
+                ditampilkan dengan offset +128. D₀ yang lebih besar hanya menyisakan tepi paling tajam.
               </p>
             </div>
           </div>
           <p className="font-metric-mono-sm text-metric-mono-sm text-outline">
-            The photo is center-cropped to a square and resampled to {N} × {N} px before the transform. Pipeline: grayscale →
-            (−1)^(x+y) centering → 2D FFT → H(u,v) → inverse FFT.
+            Foto dipotong dari tengah menjadi persegi dan di-resample ke {N} × {N} px sebelum transformasi. Alur: grayscale →
+            (−1)^(x+y) centering → 2D FFT → H(u,v) → FFT invers.
           </p>
         </>
       )}

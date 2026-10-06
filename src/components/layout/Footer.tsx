@@ -22,7 +22,7 @@ export function Footer() {
         </div>
 
         <div className="text-center font-metric-mono-sm text-metric-mono-sm text-outline md:text-right">
-          © {year} {APP_ORG}. All Rights Reserved.
+          © {year} {APP_ORG}. Hak Cipta Dilindungi.
         </div>
       </div>
     </footer>
