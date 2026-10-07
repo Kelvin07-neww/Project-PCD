@@ -52,7 +52,7 @@ export function AppLayout() {
         tabIndex={-1}
         className="relative min-h-screen w-full bg-background pt-16 outline-none"
       >
-        <div className="flex w-full flex-col">
+        <div key={pathname} className="page-transition flex w-full flex-col">
           <Suspense fallback={<RouteFallback />}>
             <Outlet />
           </Suspense>

@@ -12,11 +12,13 @@ const CORNERS = [
 
 function BiometricReticle() {
   return (
-    <div className="pointer-events-none absolute left-[44%] top-[22%] h-[54%] w-[26%] transition-all duration-300">
-      <div className="relative h-full w-full rounded-lg bg-primary/5 shadow-[0_0_24px_rgba(77,142,255,0.2)]">
+    <div className="hero-reticle-motion pointer-events-none absolute left-[44%] top-[22%] h-[54%] w-[26%] transition-all duration-300">
+      <div className="hero-reticle-box relative h-full w-full overflow-hidden rounded-lg bg-primary/5 shadow-[0_0_24px_rgba(77,142,255,0.2)]">
         {CORNERS.map((corner) => (
-          <div key={corner} className={`absolute h-4 w-4 border-primary ${corner}`} />
+          <div key={corner} className={`hero-reticle-corner absolute h-4 w-4 border-primary ${corner}`} />
         ))}
+
+        <div className="hero-reticle-scan absolute left-0 top-0 h-px w-full bg-gradient-to-r from-transparent via-tertiary to-transparent" />
 
         <div className="absolute left-[28%] top-[32%] flex items-center justify-center">
           <div className="h-2.5 w-2.5 animate-pulse rounded-full bg-tertiary shadow-[0_0_8px_#7bd0ff] motion-reduce:animate-none" />
@@ -36,7 +38,7 @@ function BiometricReticle() {
           <div className="absolute h-6 w-0.5 bg-primary/80" />
         </div>
 
-        <div className="absolute -bottom-7 left-0 flex items-center gap-1.5 rounded bg-surface-container-lowest/90 px-2 py-0.5 font-metric-mono-sm text-[10px] text-primary-fixed shadow-md">
+        <div className="hero-reticle-label absolute -bottom-7 left-0 flex items-center gap-1.5 rounded bg-surface-container-lowest/90 px-2 py-0.5 font-metric-mono-sm text-[10px] text-primary-fixed shadow-md">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
           <span>SUBJEK_01 • KEYAKINAN 99.4%</span>
         </div>

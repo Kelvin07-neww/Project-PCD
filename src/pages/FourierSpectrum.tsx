@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useSearchParams } from "react-router-dom";
 import { FourierControls } from "@/components/fourier/FourierControls";
 import { SpectrumPanels } from "@/components/fourier/SpectrumPanels";
 import { Icon } from "@/components/ui/Icon";
@@ -25,7 +26,9 @@ const N = FFT_SIZE;
 const C = N / 2;
 
 export default function FourierSpectrum() {
-  const { image, loading, notice, loadTest, loadFile } = useAnalysisImage();
+  const [params] = useSearchParams();
+  const photoId = Number(params.get("id")) || null;
+  const { image, loading, notice, loadTest, loadFile } = useAnalysisImage({ photoId, preferLastCapture: true });
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [type, setType] = useState<FilterType>("low");

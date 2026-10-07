@@ -6,7 +6,39 @@ import { clearPhotos, listPhotos, removePhoto, type GalleryItem } from "@/lib/ga
 import { cx } from "@/lib/cx";
 
 const FILTER_LABEL: Record<string, string> = {
-  none: "Original", canny: "Canny", sobel: "Sobel", prewitt: "Prewitt", otsu: "Otsu", edited: "Edited",
+  none: "Original",
+  grayscale: "Grayscale",
+  invert: "Invert",
+  sepia: "Sepia",
+  warm: "Warm",
+  cool: "Cool",
+  threshold: "Threshold",
+  posterize: "Posterize",
+  pixelate: "Pixelate",
+  blur: "Blur",
+  sharpen: "Sharpen",
+  emboss: "Emboss",
+  "none-video-frame": "Frame Video",
+  "grayscale-video-frame": "Frame Grayscale",
+  "invert-video-frame": "Frame Invert",
+  "sepia-video-frame": "Frame Sepia",
+  "warm-video-frame": "Frame Warm",
+  "cool-video-frame": "Frame Cool",
+  "threshold-video-frame": "Frame Threshold",
+  "posterize-video-frame": "Frame Posterize",
+  "pixelate-video-frame": "Frame Pixelate",
+  "blur-video-frame": "Frame Blur",
+  "sharpen-video-frame": "Frame Sharpen",
+  "emboss-video-frame": "Frame Emboss",
+  "canny-video-frame": "Frame Canny",
+  "sobel-video-frame": "Frame Sobel",
+  "prewitt-video-frame": "Frame Prewitt",
+  "otsu-video-frame": "Frame Otsu",
+  canny: "Canny",
+  sobel: "Sobel",
+  prewitt: "Prewitt",
+  otsu: "Otsu",
+  edited: "Edited",
 };
 const fmt = (t: number) => new Date(t).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
 
@@ -90,6 +122,8 @@ export default function Gallery() {
               ) : (
                 <div className="flex items-center gap-space-xs">
                   <Link to={`${ROUTES.resultEdit}?id=${it.id}`} className={cx(btn, "bg-primary-container text-on-primary-container")}>Edit</Link>
+                  <Link to={`${ROUTES.imageAnalysis}?id=${it.id}`} className={cx(btn, "bg-surface-container-high text-on-surface")}>Analisis</Link>
+                  <Link to={`${ROUTES.fourierSpectrum}?id=${it.id}`} aria-label="Analisis Fourier" className={cx(btn, "bg-surface-container-high text-secondary")}><Icon name="graphic_eq" className="text-[18px]" /></Link>
                   <button type="button" onClick={() => download(it)} aria-label="Unduh" className={cx(btn, "bg-surface-container-high text-on-surface")}><Icon name="download" className="text-[18px]" /></button>
                   <button type="button" onClick={() => setConfirmId(it.id)} aria-label="Hapus" className={cx(btn, "bg-surface-container-high text-error")}><Icon name="delete" className="text-[18px]" /></button>
                 </div>
@@ -106,7 +140,12 @@ export default function Gallery() {
             <img src={open.url} alt="Pratinjau foto" className="max-h-[78vh] rounded-xl object-contain shadow-2xl" />
             <div className="flex items-center justify-between gap-space-sm">
               <span className="font-metric-mono-sm text-metric-mono-sm text-on-surface-variant">{FILTER_LABEL[open.filter] ?? open.filter} · {fmt(open.createdAt)}</span>
-              <button type="button" autoFocus onClick={() => setOpen(null)} className={cx(btn, "bg-surface-container-high text-on-surface")}><Icon name="close" className="text-[18px]" /> Tutup (Esc)</button>
+              <div className="flex flex-wrap justify-end gap-space-xs">
+                <Link to={`${ROUTES.resultEdit}?id=${open.id}`} className={cx(btn, "bg-primary-container text-on-primary-container")}>Edit</Link>
+                <Link to={`${ROUTES.imageAnalysis}?id=${open.id}`} className={cx(btn, "bg-surface-container-high text-on-surface")}>Analisis</Link>
+                <Link to={`${ROUTES.fourierSpectrum}?id=${open.id}`} className={cx(btn, "bg-surface-container-high text-secondary")}>Fourier</Link>
+                <button type="button" autoFocus onClick={() => setOpen(null)} className={cx(btn, "bg-surface-container-high text-on-surface")}><Icon name="close" className="text-[18px]" /> Tutup (Esc)</button>
+              </div>
             </div>
           </div>
         </div>

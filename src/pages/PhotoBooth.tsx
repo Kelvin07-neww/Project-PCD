@@ -1,7 +1,9 @@
 ﻿import { addPhoto } from "@/lib/gallery";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import { ThirdsGrid } from "@/components/ui/ThirdsGrid";
+import { ROUTES } from "@/data/navItems";
 import { useCamera, type Facing } from "@/hooks/useCamera";
 import { cx } from "@/lib/cx";
 import {
@@ -11,6 +13,17 @@ import {
 
 const FILTERS: { id: FilterId; label: string; note: string }[] = [
   { id: "none", label: "Original", note: "Tanpa filter" },
+  { id: "grayscale", label: "Grayscale", note: "Luminance B/W" },
+  { id: "sepia", label: "Sepia", note: "Tone klasik hangat" },
+  { id: "warm", label: "Warm", note: "Color grade hangat" },
+  { id: "cool", label: "Cool", note: "Color grade dingin" },
+  { id: "invert", label: "Invert", note: "Negatif RGB" },
+  { id: "posterize", label: "Posterize", note: "5 level warna" },
+  { id: "pixelate", label: "Pixelate", note: "Blok 8×8" },
+  { id: "blur", label: "Gaussian Blur", note: "Blur luminance" },
+  { id: "sharpen", label: "Sharpen", note: "Detail 3×3" },
+  { id: "emboss", label: "Emboss", note: "Relief tekstur" },
+  { id: "threshold", label: "Threshold", note: "Biner T=128" },
   { id: "canny", label: "Canny Edge", note: "Gradient 2-tahap" },
   { id: "sobel", label: "Sobel 3×3", note: "Turunan dx/dy" },
   { id: "prewitt", label: "Prewitt", note: "Vektor selisih" },
@@ -20,9 +33,17 @@ const FILTERS: { id: FilterId; label: string; note: string }[] = [
 const TIMERS = [0, 3, 5, 10];
 const PREVIEW_WIDTH = 320;
 const MAX_SHOTS = 8;
+const MAX_RECORDINGS = 4;
+const LAST_CAPTURE_KEY = "pixelbooth:last-capture";
+const LAST_CAPTURE_ID_KEY = "pixelbooth:last-capture-id";
 
 interface Settings { filter: FilterId; calib: Calibration; params: FilterParams; mirror: boolean }
 interface Shot { id: number; url: string; filter: FilterId }
+interface VideoFrameSnapshot { id: number; url: string; label: string }
+interface Recording { id: number; url: string; frameUrl: string; frames: VideoFrameSnapshot[]; filter: FilterId }
+type PreviewItem =
+  | { type: "photo"; id: number; url: string; filter: FilterId }
+  | { type: "video"; id: number; url: string; frameUrl: string; frames: VideoFrameSnapshot[]; filter: FilterId };
 
 function process(src: CanvasImageSource & { videoWidth?: number; naturalWidth?: number }, canvas: HTMLCanvasElement, maxW: number, s: Settings) {
   const sw = src.videoWidth || src.naturalWidth || 0;
@@ -75,6 +96,11 @@ export default function PhotoBooth() {
   const [count, setCount] = useState<number | null>(null);
   const [flash, setFlash] = useState(false);
   const [shots, setShots] = useState<Shot[]>([]);
+  const [recordings, setRecordings] = useState<Recording[]>([]);
+  const [preview, setPreview] = useState<PreviewItem | null>(null);
+  const [recording, setRecording] = useState(false);
+  const [recordingAudio, setRecordingAudio] = useState(false);
+  const [recordingNotice, setRecordingNotice] = useState<string | null>(null);
   const [stats, setStats] = useState({ fps: 0, ms: 0, info: "", w: 0, h: 0 });
   const [hist, setHist] = useState<number[]>([]);
   const [uploadReady, setUploadReady] = useState(false);
@@ -83,6 +109,12 @@ export default function PhotoBooth() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const recordingStreamRef = useRef<MediaStream | null>(null);
+  const recordingFrameTimerRef = useRef<number | null>(null);
+  const recordingFramesRef = useRef<VideoFrameSnapshot[]>([]);
+  const chunksRef = useRef<BlobPart[]>([]);
+  const recordingsRef = useRef<Recording[]>([]);
   const settings = useRef<Settings>({ filter, calib, params, mirror });
   settings.current = { filter, calib, params, mirror: mode === "camera" && mirror };
 
@@ -121,15 +153,22 @@ export default function PhotoBooth() {
     return () => cancelAnimationFrame(raf);
   }, [getSource]);
 
+  const noSource = mode === "camera" ? !ready : !uploadReady;
+
   const capture = useCallback(() => {
     const src = getSource();
     if (!src) return;
     const off = document.createElement("canvas");
     if (!process(src, off, Infinity, settings.current)) return;
     const url = off.toDataURL("image/jpeg", 0.92);
-    setShots((list) => [{ id: Date.now(), url, filter: settings.current.filter }, ...list].slice(0, MAX_SHOTS));
-    try { localStorage.setItem("pixelbooth:last-capture", url); } catch {}
-    void addPhoto({ id: Date.now(), url, filter: settings.current.filter, createdAt: Date.now() }).catch(() => undefined); setFlash(true);
+    const shot = { id: Date.now(), url, filter: settings.current.filter };
+    setShots((list) => [shot, ...list].slice(0, MAX_SHOTS));
+    setPreview({ type: "photo", ...shot });
+    try {
+      localStorage.setItem(LAST_CAPTURE_KEY, url);
+      localStorage.setItem(LAST_CAPTURE_ID_KEY, String(shot.id));
+    } catch {}
+    void addPhoto({ id: shot.id, url, filter: settings.current.filter, createdAt: shot.id }).catch(() => undefined); setFlash(true);
     window.setTimeout(() => setFlash(false), 180);
   }, [getSource]);
 
@@ -142,6 +181,127 @@ export default function PhotoBooth() {
 
   const onShutter = () => (count !== null ? setCount(null) : timer === 0 ? capture() : setCount(timer));
 
+  const stopRecording = useCallback(() => {
+    if (recordingFrameTimerRef.current !== null) {
+      window.clearInterval(recordingFrameTimerRef.current);
+      recordingFrameTimerRef.current = null;
+    }
+    const recorder = recorderRef.current;
+    if (recorder && recorder.state !== "inactive") recorder.stop();
+  }, []);
+
+  const captureVideoFrame = useCallback((label: string) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const url = canvas.toDataURL("image/jpeg", 0.92);
+    const frame = { id: Date.now() + recordingFramesRef.current.length, url, label };
+    recordingFramesRef.current = [...recordingFramesRef.current, frame].slice(-8);
+  }, []);
+
+  const startRecording = useCallback(async () => {
+    const canvas = canvasRef.current;
+    if (!canvas || noSource || typeof MediaRecorder === "undefined") return;
+
+    const canvasStream = canvas.captureStream(15);
+    const stream = new MediaStream(canvasStream.getVideoTracks());
+    let audioStream: MediaStream;
+
+    try {
+      audioStream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+        video: false,
+      });
+      audioStream.getAudioTracks().forEach((track) => stream.addTrack(track));
+      setRecordingAudio(audioStream.getAudioTracks().length > 0);
+      setRecordingNotice(null);
+    } catch {
+      canvasStream.getTracks().forEach((track) => track.stop());
+      setRecordingAudio(false);
+      setRecordingNotice("Mikrofon belum aktif. Izinkan akses mic agar video punya suara.");
+      return;
+    }
+
+    const mimeType = [
+      "video/webm;codecs=vp9,opus",
+      "video/webm;codecs=vp8,opus",
+      "video/webm;codecs=opus",
+      "video/webm",
+    ].find((type) => MediaRecorder.isTypeSupported(type)) ?? "";
+
+    chunksRef.current = [];
+    recordingFramesRef.current = [];
+    const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+    recorderRef.current = recorder;
+    recordingStreamRef.current = stream;
+
+    recorder.ondataavailable = (event) => {
+      if (event.data.size > 0) chunksRef.current.push(event.data);
+    };
+
+    recorder.onstop = () => {
+      recordingStreamRef.current?.getTracks().forEach((track) => track.stop());
+      recordingStreamRef.current = null;
+      const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "video/webm" });
+      chunksRef.current = [];
+      recorderRef.current = null;
+      setRecording(false);
+      setRecordingAudio(false);
+      if (!blob.size) return;
+      const url = URL.createObjectURL(blob);
+      const id = Date.now();
+      captureVideoFrame("Frame akhir");
+      const frames = recordingFramesRef.current.length
+        ? recordingFramesRef.current
+        : canvasRef.current
+          ? [{ id, url: canvasRef.current.toDataURL("image/jpeg", 0.92), label: "Frame akhir" }]
+          : [];
+      const frameUrl = frames[frames.length - 1]?.url ?? "";
+      const item = { id, url, frameUrl, frames, filter: settings.current.filter };
+      setRecordings((list) => {
+        const next = [item, ...list].slice(0, MAX_RECORDINGS);
+        list.slice(MAX_RECORDINGS - 1).forEach((item) => URL.revokeObjectURL(item.url));
+        return next;
+      });
+      if (frames.length) {
+        try {
+          localStorage.setItem(LAST_CAPTURE_KEY, frameUrl);
+          localStorage.setItem(LAST_CAPTURE_ID_KEY, String(id));
+        } catch {}
+        frames.forEach((frame, index) => {
+          void addPhoto({
+            id: frame.id,
+            url: frame.url,
+            filter: `${settings.current.filter}-video-frame`,
+            createdAt: id + index,
+          }).catch(() => undefined);
+        });
+      }
+      setPreview({ type: "video", ...item });
+    };
+
+    recorder.start(250);
+    captureVideoFrame("Frame awal");
+    recordingFrameTimerRef.current = window.setInterval(() => {
+      captureVideoFrame(`Frame ${recordingFramesRef.current.length + 1}`);
+    }, 1500);
+    setRecording(true);
+  }, [captureVideoFrame, noSource]);
+
+  const onRecord = () => (recording ? stopRecording() : void startRecording());
+
+  useEffect(() => {
+    recordingsRef.current = recordings;
+  }, [recordings]);
+
+  useEffect(() => {
+    return () => {
+      if (recorderRef.current && recorderRef.current.state !== "inactive") recorderRef.current.stop();
+      if (recordingFrameTimerRef.current !== null) window.clearInterval(recordingFrameTimerRef.current);
+      recordingStreamRef.current?.getTracks().forEach((track) => track.stop());
+      recordingsRef.current.forEach((item) => URL.revokeObjectURL(item.url));
+    };
+  }, []);
+
   const onUpload = (file?: File) => {
     if (!file) return;
     const img = new Image();
@@ -149,13 +309,18 @@ export default function PhotoBooth() {
     img.src = URL.createObjectURL(file);
   };
 
-  const noSource = mode === "camera" ? !ready : !uploadReady;
   const path = hist.length ? hist.map((v, i) => `${i},${30 - (v / Math.max(...hist, 1)) * 30}`).join(" ") : "";
 
   return (
+    <>
     <div className="grid w-full flex-1 grid-cols-1 items-start gap-gutter px-gutter-mobile py-space-md md:px-gutter lg:grid-cols-12">
       <video ref={videoRef} playsInline muted className="hidden" />
       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => onUpload(e.target.files?.[0])} />
+      {recordingNotice && (
+        <div role="status" className="fixed left-1/2 top-20 z-[80] max-w-sm -translate-x-1/2 rounded-xl bg-error-container px-space-md py-space-sm text-center font-body-sm text-body-sm text-on-error-container shadow-xl">
+          {recordingNotice}
+        </div>
+      )}
 
       <aside className="flex flex-col gap-space-md lg:col-span-3">
         <div className={panel}>
@@ -236,6 +401,11 @@ export default function PhotoBooth() {
               <div className="absolute bottom-4 left-4 rounded bg-surface-container-lowest/80 px-space-sm py-1 font-metric-mono-sm text-metric-mono-sm text-on-surface-variant backdrop-blur">
                 {mode === "camera" ? stats.fps + " FPS" : "Statis"} · {stats.ms} ms/frame
               </div>
+              {recording && (
+                <div role="status" className="absolute left-1/2 top-4 flex -translate-x-1/2 items-center gap-2 rounded-full bg-error-container/90 px-space-md py-1.5 font-metric-mono-sm text-metric-mono-sm font-bold text-on-error-container shadow-lg backdrop-blur-md">
+                  <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-error motion-reduce:animate-none" /> REC {recordingAudio ? "• MIC" : ""}
+                </div>
+              )}
             </>
           )}
           {count !== null && (
@@ -244,9 +414,12 @@ export default function PhotoBooth() {
           <div aria-hidden="true" className={cx("pointer-events-none absolute inset-0 bg-white transition-opacity duration-150", flash ? "opacity-80" : "opacity-0")} />
         </div>
 
-        <div className="z-20 -mt-6 flex w-full max-w-lg items-center justify-around gap-space-md rounded-2xl bg-surface-container-low/90 p-space-sm shadow-xl backdrop-blur-xl">
+        <div className="z-20 -mt-6 flex w-full max-w-xl items-center justify-around gap-space-md rounded-2xl bg-surface-container-low/90 p-space-sm shadow-xl backdrop-blur-xl">
           <button type="button" title="Balik kamera" aria-label="Balik kamera" disabled={mode !== "camera"} onClick={() => setFacing(facing === "user" ? "environment" : "user")} className="flex h-11 w-11 items-center justify-center rounded-full bg-surface-container-highest text-on-surface transition-all hover:text-primary disabled:opacity-40">
             <Icon name="cameraswitch" className="text-[20px]" />
+          </button>
+          <button type="button" title={recording ? "Stop rekam" : "Rekam video"} aria-label={recording ? "Stop rekam" : "Rekam video"} disabled={noSource} onClick={onRecord} className={cx("flex h-11 w-11 items-center justify-center rounded-full transition-all disabled:opacity-40", recording ? "bg-error text-on-error shadow-[0_0_20px_rgba(255,180,171,0.45)]" : "bg-surface-container-highest text-on-surface hover:text-error")}>
+            <Icon name={recording ? "stop" : "fiber_manual_record"} className="text-[22px]" />
           </button>
           <button type="button" aria-label={count !== null ? "Batalkan timer" : "Ambil foto"} disabled={noSource} onClick={onShutter} className="group flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-tertiary p-1 shadow-[0_0_28px_rgba(77,142,255,0.45)] transition-all hover:shadow-[0_0_36px_rgba(77,142,255,0.7)] active:scale-95 disabled:opacity-40">
             <span className="flex h-full w-full items-center justify-center rounded-full bg-surface-container-lowest p-1.5">
@@ -264,8 +437,25 @@ export default function PhotoBooth() {
           <ul className="flex w-full gap-space-sm overflow-x-auto pt-space-sm" aria-label="Hasil capture">
             {shots.map((s) => (
               <li key={s.id} className="relative shrink-0">
-                <img src={s.url} alt={`Capture filter ${s.filter}`} className="h-16 w-24 rounded-lg object-cover" />
+                <button type="button" onClick={() => setPreview({ type: "photo", ...s })} className="block rounded-lg outline-none transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary/70">
+                  <img src={s.url} alt={`Capture filter ${s.filter}`} className="h-16 w-24 rounded-lg object-cover" />
+                </button>
                 <a href={s.url} download={`pixelbooth-${s.id}.jpg`} aria-label="Unduh foto" className="absolute bottom-1 right-1 rounded bg-surface-container-lowest/85 p-0.5 text-primary">
+                  <Icon name="download" className="text-[16px]" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {recordings.length > 0 && (
+          <ul className="flex w-full gap-space-sm overflow-x-auto pt-space-sm" aria-label="Hasil rekaman">
+            {recordings.map((item) => (
+              <li key={item.id} className="relative shrink-0 overflow-hidden rounded-lg bg-surface-container-lowest">
+                <button type="button" onClick={() => setPreview({ type: "video", ...item })} className="block rounded-lg outline-none transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary/70">
+                  <video src={item.url} muted className="h-24 w-36 object-cover" />
+                </button>
+                <a href={item.url} download={`pixelbooth-recording-${item.id}.webm`} aria-label="Unduh rekaman" className="absolute bottom-1 right-1 rounded bg-surface-container-lowest/85 p-0.5 text-primary">
                   <Icon name="download" className="text-[16px]" />
                 </a>
               </li>
@@ -295,5 +485,83 @@ export default function PhotoBooth() {
         </div>
       </aside>
     </div>
+    {preview && (
+      <div role="dialog" aria-modal="true" aria-label="Preview hasil Photo Booth" className="fixed inset-0 z-[70] flex items-center justify-center bg-surface-container-lowest/80 p-margin-mobile backdrop-blur-xl sm:p-margin">
+        <div className="preview-pop flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-outline-variant/40 bg-surface-container-low shadow-2xl">
+          <div className="flex items-center justify-between gap-space-md border-b border-outline-variant/30 px-space-md py-space-sm">
+            <div>
+              <p className="font-metric-mono-sm text-metric-mono-sm uppercase tracking-wider text-tertiary">
+                {preview.type === "photo" ? "Preview Foto" : "Preview Video"}
+              </p>
+              <h2 className="font-headline-md text-headline-md text-on-surface">
+                Filter: {preview.filter}
+              </h2>
+            </div>
+            <button type="button" onClick={() => setPreview(null)} aria-label="Tutup preview" className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container-highest text-on-surface transition-colors hover:text-primary">
+              <Icon name="close" className="text-[22px]" />
+            </button>
+          </div>
+
+          <div className="flex min-h-0 flex-1 items-center justify-center bg-surface-container-lowest p-space-md">
+            {preview.type === "photo" ? (
+              <img src={preview.url} alt={`Preview foto filter ${preview.filter}`} className="max-h-[68vh] w-auto max-w-full rounded-xl object-contain shadow-xl" />
+            ) : (
+              <video src={preview.url} controls autoPlay loop playsInline className="max-h-[68vh] w-auto max-w-full rounded-xl object-contain shadow-xl" />
+            )}
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-space-sm border-t border-outline-variant/30 px-space-md py-space-sm">
+            <span className="font-body-sm text-body-sm text-on-surface-variant">
+              {preview.type === "photo" ? "Foto berhasil diambil." : "Video berhasil direkam."}
+            </span>
+            <div className="flex items-center gap-space-sm">
+              <button type="button" onClick={() => setPreview(null)} className="rounded-full bg-surface-container-highest px-space-md py-2 font-label-lg text-label-lg text-on-surface transition-colors hover:text-primary">
+                Ambil lagi
+              </button>
+              {(preview.type === "photo" || (preview.type === "video" && preview.frameUrl)) && (
+                <>
+                  <Link to={`${ROUTES.resultEdit}?id=${preview.type === "video" ? preview.frames[preview.frames.length - 1]?.id ?? preview.id : preview.id}`} className="inline-flex items-center gap-1 rounded-full bg-surface-container-highest px-space-md py-2 font-label-lg text-label-lg text-on-surface transition-colors hover:text-primary">
+                    <Icon name="tune" className="text-[18px]" /> {preview.type === "video" ? "Edit Frame" : "Edit"}
+                  </Link>
+                  <Link to={`${ROUTES.imageAnalysis}?id=${preview.type === "video" ? preview.frames[preview.frames.length - 1]?.id ?? preview.id : preview.id}`} className="inline-flex items-center gap-1 rounded-full bg-surface-container-highest px-space-md py-2 font-label-lg text-label-lg text-on-surface transition-colors hover:text-tertiary">
+                    <Icon name="insights" className="text-[18px]" /> {preview.type === "video" ? "Analisis Frame" : "Analisis"}
+                  </Link>
+                  <Link to={`${ROUTES.fourierSpectrum}?id=${preview.type === "video" ? preview.frames[preview.frames.length - 1]?.id ?? preview.id : preview.id}`} className="inline-flex items-center gap-1 rounded-full bg-surface-container-highest px-space-md py-2 font-label-lg text-label-lg text-on-surface transition-colors hover:text-secondary">
+                    <Icon name="graphic_eq" className="text-[18px]" /> {preview.type === "video" ? "Fourier Frame" : "Fourier"}
+                  </Link>
+                  <Link to={ROUTES.gallery} className="inline-flex items-center gap-1 rounded-full bg-surface-container-highest px-space-md py-2 font-label-lg text-label-lg text-on-surface transition-colors hover:text-primary">
+                    <Icon name="photo_library" className="text-[18px]" /> Gallery
+                  </Link>
+                </>
+              )}
+              <a href={preview.url} download={preview.type === "photo" ? `pixelbooth-${preview.id}.jpg` : `pixelbooth-recording-${preview.id}.webm`} className="inline-flex items-center gap-1 rounded-full bg-primary-container px-space-md py-2 font-label-lg text-label-lg text-on-primary-container transition-opacity hover:opacity-90">
+                <Icon name="download" className="text-[18px]" /> Download
+              </a>
+            </div>
+          </div>
+
+          {preview.type === "video" && preview.frames.length > 0 && (
+            <div className="border-t border-outline-variant/30 bg-surface-container px-space-md py-space-sm">
+              <p className="mb-space-xs font-metric-mono-sm text-metric-mono-sm uppercase tracking-wider text-on-surface-variant">
+                Keyframe video untuk pengolahan citra
+              </p>
+              <div className="flex gap-space-sm overflow-x-auto">
+                {preview.frames.map((frame) => (
+                  <div key={frame.id} className="flex shrink-0 flex-col gap-1 rounded-lg bg-surface-container-lowest p-1.5">
+                    <img src={frame.url} alt={frame.label} className="h-16 w-24 rounded object-cover" />
+                    <span className="font-metric-mono-sm text-[10px] text-on-surface-variant">{frame.label}</span>
+                    <div className="flex gap-1">
+                      <Link to={`${ROUTES.imageAnalysis}?id=${frame.id}`} className="rounded bg-surface-container-high px-1.5 py-0.5 font-metric-mono-sm text-[10px] text-tertiary">Analisis</Link>
+                      <Link to={`${ROUTES.fourierSpectrum}?id=${frame.id}`} className="rounded bg-surface-container-high px-1.5 py-0.5 font-metric-mono-sm text-[10px] text-secondary">FFT</Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+    </>
   );
 }

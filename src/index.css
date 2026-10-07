@@ -30,3 +30,213 @@
     display: none;
   }
 }
+
+@layer utilities {
+  .page-transition {
+    animation: page-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    transform-origin: top center;
+    will-change: opacity, transform, filter;
+  }
+
+  .page-transition > :where(section, div, article, header),
+  .page-transition :where(main, section, article, aside, header)[class*="rounded"],
+  .page-transition :where([role="status"], [class*="bg-surface-container"]) {
+    animation: layout-enter 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: opacity, transform;
+  }
+
+  .page-transition :where(h1, h2, h3, h4, p, li, label, .font-headline-xl, .font-headline-lg, .font-headline-md) {
+    animation: text-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: opacity, transform;
+  }
+
+  .page-transition > :nth-child(1) { animation-delay: 70ms; }
+  .page-transition > :nth-child(2) { animation-delay: 130ms; }
+  .page-transition > :nth-child(3) { animation-delay: 190ms; }
+  .page-transition > :nth-child(4) { animation-delay: 250ms; }
+  .page-transition > :nth-child(5) { animation-delay: 310ms; }
+
+  .page-transition :where(h1, .font-headline-xl) { animation-delay: 120ms; }
+  .page-transition :where(h2, .font-headline-lg) { animation-delay: 170ms; }
+  .page-transition :where(h3, h4, .font-headline-md) { animation-delay: 210ms; }
+  .page-transition :where(p, li, label) { animation-delay: 250ms; }
+
+  .hero-reticle-motion {
+    animation: reticle-track-motion 9s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .hero-reticle-box {
+    animation: reticle-focus-pulse 2.6s ease-in-out infinite;
+  }
+
+  .hero-reticle-corner {
+    animation: reticle-corner-lock 1.8s ease-in-out infinite;
+  }
+
+  .hero-reticle-scan {
+    animation: reticle-scan-line 2.2s ease-in-out infinite;
+    opacity: 0.85;
+    box-shadow: 0 0 14px rgba(123, 208, 255, 0.75);
+  }
+
+  .hero-reticle-label {
+    animation: reticle-label-flicker 3.4s steps(2, end) infinite;
+  }
+
+  .preview-pop {
+    animation: preview-pop 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    transform-origin: center;
+  }
+
+  @keyframes page-enter {
+    from {
+      opacity: 0;
+      filter: blur(8px);
+      transform: translateY(16px) scale(0.985);
+    }
+
+    to {
+      opacity: 1;
+      filter: blur(0);
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes layout-enter {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes text-enter {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes reticle-track-motion {
+    0%,
+    100% {
+      transform: translate3d(-52%, -30%, 0) scale(0.92);
+    }
+
+    16% {
+      transform: translate3d(-52%, -30%, 0) scale(0.92);
+    }
+
+    34% {
+      transform: translate3d(0, 0, 0) scale(1.04);
+    }
+
+    48% {
+      transform: translate3d(0, 0, 0) scale(1.04);
+    }
+
+    64% {
+      transform: translate3d(58%, 31%, 0) scale(0.94);
+    }
+
+    76% {
+      transform: translate3d(58%, 31%, 0) scale(0.94);
+    }
+
+    90% {
+      transform: translate3d(45%, -31%, 0) scale(0.9);
+    }
+  }
+
+  @keyframes reticle-focus-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 22px rgba(77, 142, 255, 0.18), inset 0 0 0 1px rgba(173, 198, 255, 0.14);
+      background-color: rgba(173, 198, 255, 0.05);
+    }
+
+    45% {
+      box-shadow: 0 0 34px rgba(123, 208, 255, 0.3), inset 0 0 0 1px rgba(123, 208, 255, 0.28);
+      background-color: rgba(123, 208, 255, 0.08);
+    }
+  }
+
+  @keyframes reticle-corner-lock {
+    0%,
+    100% {
+      opacity: 0.75;
+      transform: scale(1);
+    }
+
+    50% {
+      opacity: 1;
+      transform: scale(1.18);
+    }
+  }
+
+  @keyframes reticle-scan-line {
+    0% {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+
+    18%,
+    72% {
+      opacity: 0.9;
+    }
+
+    100% {
+      opacity: 0;
+      transform: translateY(220px);
+    }
+  }
+
+  @keyframes reticle-label-flicker {
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.78;
+    }
+  }
+
+  @keyframes preview-pop {
+    from {
+      opacity: 0;
+      transform: translateY(14px) scale(0.96);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .page-transition,
+    .page-transition > :where(section, div, article, header),
+    .page-transition :where(main, section, article, aside, header)[class*="rounded"],
+    .page-transition :where([role="status"], [class*="bg-surface-container"]),
+    .page-transition :where(h1, h2, h3, h4, p, li, label, .font-headline-xl, .font-headline-lg, .font-headline-md),
+    .hero-reticle-motion,
+    .hero-reticle-box,
+    .hero-reticle-corner,
+    .hero-reticle-scan,
+    .hero-reticle-label,
+    .preview-pop {
+      animation: none;
+    }
+  }
+}

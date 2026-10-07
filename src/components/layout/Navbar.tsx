@@ -3,8 +3,8 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { HelpPopover } from "@/components/layout/HelpPopover";
 import { Icon } from "@/components/ui/Icon";
 import { IconButton } from "@/components/ui/IconButton";
-import { APP_NAME, APP_TAGLINE, APP_VERSION_BADGE, HEADER_STATUS } from "@/data/app";
-import { AVATAR_URL, LOGO_URL } from "@/data/assets";
+import { APP_NAME, APP_TAGLINE } from "@/data/app";
+import { LOGO_URL } from "@/data/assets";
 import { NAV_ITEMS, ROUTES } from "@/data/navItems";
 import { useFullscreen } from "@/hooks/useFullscreen";
 import { cx } from "@/lib/cx";
@@ -63,9 +63,6 @@ export function Navbar() {
               </span>
             </div>
           </Link>
-          <span className="hidden items-center rounded border border-outline-variant/40 bg-surface-container-highest px-space-xs py-0.5 font-metric-mono-sm text-metric-mono-sm text-tertiary sm:inline-flex">
-            {APP_VERSION_BADGE}
-          </span>
         </div>
 
         {/* Navigasi tengah (xl+) */}
@@ -88,18 +85,7 @@ export function Navbar() {
         </nav>
 
         {/* Aksi kanan */}
-        <div className="flex shrink-0 items-center gap-space-md">
-          <div className="hidden items-center gap-space-sm 2xl:flex">
-            <div className="flex items-center gap-1.5 rounded border border-outline-variant/30 bg-surface-container-low px-space-sm py-1 font-metric-mono-sm text-metric-mono-sm text-on-surface-variant">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
-              <span>{HEADER_STATUS.camera}</span>
-            </div>
-            <div className="flex items-center gap-1.5 rounded border border-outline-variant/30 bg-surface-container-low px-space-sm py-1 font-metric-mono-sm text-metric-mono-sm text-tertiary-fixed-dim">
-              <span className="h-1.5 w-1.5 rounded-full bg-tertiary" />
-              <span>{HEADER_STATUS.engine}</span>
-            </div>
-          </div>
-
+        <div className="flex shrink-0 items-center">
           <div className="flex items-center gap-space-xs">
             <Link
               to={ROUTES.photoBooth}
@@ -128,14 +114,6 @@ export function Navbar() {
               aria-controls={menuId}
               onClick={() => setMenuOpen((value) => !value)}
             />
-
-            <div className="border-l border-outline-variant/40 pl-space-xs">
-              <img
-                alt="Profile"
-                src={AVATAR_URL}
-                className="h-8 w-8 rounded-full bg-surface-container-high object-cover ring-1 ring-primary/40"
-              />
-            </div>
           </div>
         </div>
       </div>

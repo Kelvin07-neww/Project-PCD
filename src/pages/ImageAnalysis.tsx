@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { ChannelSection } from "@/components/analysis/ChannelSection";
 import { FourierPrimer } from "@/components/analysis/FourierPrimer";
 import { KernelInspector } from "@/components/analysis/KernelInspector";
@@ -13,7 +14,9 @@ import { analyzeImage, type Analysis } from "@/lib/dip/analyze";
 import { buildReportCsv } from "@/lib/dip/report";
 
 export default function ImageAnalysis() {
-  const { image, loading, notice, loadTest, loadFile } = useAnalysisImage();
+  const [params] = useSearchParams();
+  const photoId = Number(params.get("id")) || null;
+  const { image, loading, notice, loadTest, loadFile } = useAnalysisImage({ photoId, preferLastCapture: true });
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [busy, setBusy] = useState(false);
 

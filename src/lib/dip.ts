@@ -1,4 +1,20 @@
-﻿export type FilterId = "none" | "canny" | "sobel" | "prewitt" | "otsu";
+﻿export type FilterId =
+  | "none"
+  | "grayscale"
+  | "invert"
+  | "sepia"
+  | "warm"
+  | "cool"
+  | "threshold"
+  | "posterize"
+  | "pixelate"
+  | "blur"
+  | "sharpen"
+  | "emboss"
+  | "canny"
+  | "sobel"
+  | "prewitt"
+  | "otsu";
 
 export interface Calibration {
   exposure: number; // EV, -2..+2
@@ -19,6 +35,10 @@ const SOBEL_X = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]];
 const SOBEL_Y = [[-1, -2, -1], [0, 0, 0], [1, 2, 1]];
 const PREWITT_X = [[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]];
 const PREWITT_Y = [[-1, -1, -1], [0, 0, 0], [1, 1, 1]];
+const SHARPEN = [[0, -1, 0], [-1, 5, -1], [0, -1, 0]];
+const EMBOSS = [[-2, -1, 0], [-1, 1, 1], [0, 1, 2]];
+
+const clamp255 = (value: number) => Math.max(0, Math.min(255, value));
 
 /** Exposure, brightness, contrast langsung pada piksel (in-place). */
 export function calibrate(img: ImageData, c: Calibration): void {
@@ -156,11 +176,129 @@ function paint(src: ImageData, values: ArrayLike<number>, tint: [number, number,
   }
 }
 
+function paintGray(src: ImageData, values: ArrayLike<number>): void {
+  const p = src.data;
+  for (let i = 0; i < values.length; i++) {
+    const v = clamp255(values[i]);
+    p[i * 4] = v; p[i * 4 + 1] = v; p[i * 4 + 2] = v; p[i * 4 + 3] = 255;
+  }
+}
+
+function applyColorKernel(src: ImageData, kernel: number[][], div = 1, offset = 0): void {
+  const { width: w, height: h, data } = src;
+  const original = new Uint8ClampedArray(data);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const out = (y * w + x) * 4;
+      for (let ch = 0; ch < 3; ch++) {
+        let sum = 0;
+        for (let ky = -1; ky <= 1; ky++) {
+          const yy = Math.min(h - 1, Math.max(0, y + ky));
+          for (let kx = -1; kx <= 1; kx++) {
+            const xx = Math.min(w - 1, Math.max(0, x + kx));
+            sum += kernel[ky + 1][kx + 1] * original[(yy * w + xx) * 4 + ch];
+          }
+        }
+        data[out + ch] = clamp255(sum / div + offset);
+      }
+      data[out + 3] = 255;
+    }
+  }
+}
+
+function pixelate(src: ImageData, size = 8): void {
+  const { width: w, height: h, data } = src;
+  for (let y = 0; y < h; y += size) {
+    for (let x = 0; x < w; x += size) {
+      let r = 0, g = 0, b = 0, count = 0;
+      const maxY = Math.min(h, y + size);
+      const maxX = Math.min(w, x + size);
+      for (let yy = y; yy < maxY; yy++) {
+        for (let xx = x; xx < maxX; xx++) {
+          const i = (yy * w + xx) * 4;
+          r += data[i]; g += data[i + 1]; b += data[i + 2]; count++;
+        }
+      }
+      r = Math.round(r / count); g = Math.round(g / count); b = Math.round(b / count);
+      for (let yy = y; yy < maxY; yy++) {
+        for (let xx = x; xx < maxX; xx++) {
+          const i = (yy * w + xx) * 4;
+          data[i] = r; data[i + 1] = g; data[i + 2] = b; data[i + 3] = 255;
+        }
+      }
+    }
+  }
+}
+
 /** Terapkan filter ke ImageData (in-place). Mengembalikan teks info singkat untuk UI. */
 export function applyFilter(img: ImageData, id: FilterId, p: FilterParams): string {
   if (id === "none") return "Passthrough";
   const { width: w, height: h } = img;
   const g = toGray(img);
+  if (id === "grayscale") {
+    paintGray(img, g);
+    return "Grayscale luminance";
+  }
+  if (id === "invert") {
+    const px = img.data;
+    for (let i = 0; i < px.length; i += 4) {
+      px[i] = 255 - px[i]; px[i + 1] = 255 - px[i + 1]; px[i + 2] = 255 - px[i + 2];
+    }
+    return "RGB invert";
+  }
+  if (id === "sepia") {
+    const px = img.data;
+    for (let i = 0; i < px.length; i += 4) {
+      const r = px[i], gg = px[i + 1], b = px[i + 2];
+      px[i] = clamp255(0.393 * r + 0.769 * gg + 0.189 * b);
+      px[i + 1] = clamp255(0.349 * r + 0.686 * gg + 0.168 * b);
+      px[i + 2] = clamp255(0.272 * r + 0.534 * gg + 0.131 * b);
+    }
+    return "Sepia tone";
+  }
+  if (id === "warm" || id === "cool") {
+    const px = img.data;
+    const warm = id === "warm";
+    for (let i = 0; i < px.length; i += 4) {
+      px[i] = clamp255(px[i] + (warm ? 22 : -10));
+      px[i + 1] = clamp255(px[i + 1] + (warm ? 8 : 6));
+      px[i + 2] = clamp255(px[i + 2] + (warm ? -12 : 24));
+    }
+    return warm ? "Warm color grade" : "Cool color grade";
+  }
+  if (id === "threshold") {
+    const bin = new Uint8Array(g.length);
+    for (let i = 0; i < g.length; i++) bin[i] = g[i] >= 128 ? 255 : 0;
+    paintGray(img, bin);
+    return "Threshold T = 128";
+  }
+  if (id === "posterize") {
+    const px = img.data;
+    const levels = 5;
+    const step = 255 / (levels - 1);
+    for (let i = 0; i < px.length; i += 4) {
+      px[i] = Math.round(Math.round(px[i] / step) * step);
+      px[i + 1] = Math.round(Math.round(px[i + 1] / step) * step);
+      px[i + 2] = Math.round(Math.round(px[i + 2] / step) * step);
+    }
+    return `${levels}-level posterize`;
+  }
+  if (id === "pixelate") {
+    pixelate(img, 8);
+    return "Pixelate block 8×8";
+  }
+  if (id === "blur") {
+    paintGray(img, gaussian(g, w, h, 1.8));
+    return "Gaussian blur σ=1.8";
+  }
+  if (id === "sharpen") {
+    applyColorKernel(img, SHARPEN);
+    return "Sharpen kernel 3×3";
+  }
+  if (id === "emboss") {
+    applyColorKernel(img, EMBOSS, 1, 96);
+    return "Emboss relief 3×3";
+  }
   if (id === "canny") {
     paint(img, canny(g, w, h, p.sigma, p.low, p.high), p.tint);
     return `σ=${p.sigma.toFixed(1)} · T ${p.low}/${p.high}`;

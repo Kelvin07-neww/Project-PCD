@@ -1,10 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { loadFromFile, loadTestImage, type LoadedImage } from "@/lib/dip/image";
+import { loadFromFile, loadFromUrl, loadTestImage, type LoadedImage } from "@/lib/dip/image";
+import { getPhoto, listPhotos } from "@/lib/gallery";
+
+const LAST_CAPTURE_KEY = "pixelbooth:last-capture";
 
 const FALLBACK_NOTICE =
   "Potret uji jarak jauh tidak dapat dibaca oleh canvas (CORS atau offline), sehingga digunakan adegan sintetis bawaan. Unggah foto Anda sendiri untuk analisis nyata.";
 
-export function useAnalysisImage() {
+interface UseAnalysisImageOptions {
+  photoId?: number | null;
+  preferLastCapture?: boolean;
+}
+
+export function useAnalysisImage(options: UseAnalysisImageOptions = {}) {
   const [image, setImage] = useState<LoadedImage | null>(null);
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState<string | null>(null);
@@ -36,12 +44,54 @@ export function useAnalysisImage() {
     setLoading(false);
   }, []);
 
+  const loadLinkedPhoto = useCallback(async () => {
+    const id = ++ticket.current;
+    setLoading(true);
+    setNotice(null);
+    try {
+      let url: string | null = null;
+      let label = "Foto Photo Booth";
+      if (options.photoId) {
+        const photo = await getPhoto(options.photoId);
+        if (photo) {
+          url = photo.url;
+          label = `Gallery #${photo.id}`;
+        }
+      }
+      if (!url && options.preferLastCapture) {
+        url = localStorage.getItem(LAST_CAPTURE_KEY);
+        label = "Capture terakhir Photo Booth";
+      }
+      if (!url && options.preferLastCapture) {
+        const latest = (await listPhotos())[0];
+        if (latest) {
+          url = latest.url;
+          label = `Gallery #${latest.id}`;
+        }
+      }
+      if (!url) return false;
+      const next = await loadFromUrl(url, label);
+      if (id !== ticket.current) return true;
+      setImage(next);
+      setLoading(false);
+      return true;
+    } catch {
+      if (id === ticket.current) {
+        setNotice("Foto dari Photo Booth/Gallery tidak dapat dibaca. Gambar uji akan digunakan.");
+      }
+      return false;
+    }
+  }, [options.photoId, options.preferLastCapture]);
+
   useEffect(() => {
-    void loadTest();
+    (async () => {
+      if (await loadLinkedPhoto()) return;
+      void loadTest();
+    })();
     return () => {
       ticket.current++;
     };
-  }, [loadTest]);
+  }, [loadLinkedPhoto, loadTest]);
 
   return { image, loading, notice, loadTest, loadFile };
 }
