@@ -1,3 +1,4 @@
+﻿import { addPhoto } from "@/lib/gallery";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { ThirdsGrid } from "@/components/ui/ThirdsGrid";
@@ -128,7 +129,7 @@ export default function PhotoBooth() {
     const url = off.toDataURL("image/jpeg", 0.92);
     setShots((list) => [{ id: Date.now(), url, filter: settings.current.filter }, ...list].slice(0, MAX_SHOTS));
     try { localStorage.setItem("pixelbooth:last-capture", url); } catch {}
-    setFlash(true);
+    void addPhoto({ id: Date.now(), url, filter: settings.current.filter, createdAt: Date.now() }).catch(() => undefined); setFlash(true);
     window.setTimeout(() => setFlash(false), 180);
   }, [getSource]);
 
